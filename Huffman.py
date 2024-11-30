@@ -1,4 +1,6 @@
+import os
 from collections import OrderedDict
+
 
 class Node:
     def __init__(self, char, prob) -> None:
@@ -8,47 +10,39 @@ class Node:
         self.left = None
         self.right = None
 
-    def __repr__(self) -> str:
-        return f"Node(Char='{self.char}', Prob={self.prob}, Code={self.code})"
 
-
-def calcProb(input):
+def calcProb(input_text):
     probs = {}
-    for char in set(input):
-        count = input.count(char)
-        probs[char] = count / len(input)
+    for char in set(input_text):
+        count = input_text.count(char)
+        probs[char] = count / len(input_text)
     return probs
 
 
-def buildHuffmanTree(nodes: list) ->Node:
+def buildHuffmanTree(nodes: list) -> Node:
     while len(nodes) > 1:
-        # Take the last two nodes with the smallest probabilities
+    
         left = nodes.pop()
         right = nodes.pop()
-        
-        # Assign binary codes to the branches
+
         left.code = 1
         right.code = 0
 
-        # Combine the characters and sum their probabilities
         combined_char = left.char + right.char
         combined_prob = left.prob + right.prob
 
-        # Create a new node for the combined data
         combined_node = Node(combined_char, combined_prob)
         combined_node.left = left
         combined_node.right = right
 
-        # Insert the new node into the list while maintaining descending order by probability
         nodes.append(combined_node)
-        nodes.sort(key=lambda node: node.prob, reverse=True)  # Sort descending again
+        nodes.sort(key=lambda node: node.prob, reverse=True)
 
-    return nodes[0]  # The final node is the root of the tree
+    return nodes[0]
 
 
 def generateCodes(node, code='', huffman_codes={}):
     if node is not None:
-        # If the node is a leaf (character node), store its code
         if len(node.char) == 1:
             huffman_codes[node.char] = code
         generateCodes(node.left, code + '1', huffman_codes)
@@ -56,13 +50,51 @@ def generateCodes(node, code='', huffman_codes={}):
     return huffman_codes
 
 
-def printTree(node, prefix="", is_left=True):
-    if node is not None:
-        connector = "└── " if is_left else "├── "
-        print(prefix + connector + f"({node.char}, {node.prob})")
-        # Adjust prefix for the left and right branches
-        new_prefix = prefix + ("    " if is_left else "│   ")
-        printTree(node.left, new_prefix, True)
-        printTree(node.right, new_prefix, False)
+def compressToFile(input_file_path):
+    
+    with open('Playground/' + input_file_path, 'r') as file:
+        input_text = file.read().strip()
+
+    data = calcProb(input_text)
+    nodes = sorted([Node(char, prob) for char, prob in OrderedDict(sorted(data.items())).items()],
+                   key=lambda node: node.prob, reverse=True)
+    root = buildHuffmanTree(nodes)
+    huffman_codes = generateCodes(root)
+
+    compressed_binary = ''.join(huffman_codes[char] for char in input_text)
+
+    output_file_path = os.path.splitext('Playground/' + input_file_path)[0] + '.huff'
+    with open(output_file_path, 'wb') as file:
+        padded_binary = compressed_binary + '0' * ((8 - len(compressed_binary) % 8) % 8)
+        byte_array = bytearray(int(padded_binary[i:i+8], 2) for i in range(0, len(padded_binary), 8))
+        file.write(byte_array)
+
+    print(f"Compressed data has been written to {output_file_path}.")
 
 
+def decompressFromFile(huff_file_path):
+   
+    huffman_codes = {
+        'A': '11', 
+        'B': '10', 
+        'C': '001',
+        'D' : '0000',
+        'E' : '01',
+        'F' : '0001'
+    }
+    reverse_huffman_codes = {v: k for k, v in huffman_codes.items()}
+
+    with open('Playground/' + huff_file_path, 'rb') as file:
+        byte_array = file.read()
+
+    binary_string = ''.join(format(byte, '08b') for byte in byte_array)
+    decoded_text = ''
+    current_code = ''
+
+    for bit in binary_string:
+        current_code += bit
+        if current_code in reverse_huffman_codes:
+            decoded_text += reverse_huffman_codes[current_code]
+            current_code = ''
+
+    return decoded_text
