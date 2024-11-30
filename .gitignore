@@ -1,0 +1,25 @@
+# Virtual Environment
+venv/
+
+# Compiled Python Files
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor Configurations
+.vscode/
+.idea/
+
+# Logs and Temporary Files
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+
+# Output Files
+*.huff
+Playground/
+
+# Environment Variables
+.env

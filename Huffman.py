@@ -1,13 +1,5 @@
 from collections import OrderedDict
 
-def calcProb(input):
-    probs = {}
-    for char in set(input):
-        count = input.count(char)
-        probs[char] = count / len(input)
-    return probs
-
-
 class Node:
     def __init__(self, char, prob) -> None:
         self.char = char
@@ -18,6 +10,14 @@ class Node:
 
     def __repr__(self) -> str:
         return f"Node(Char='{self.char}', Prob={self.prob}, Code={self.code})"
+
+
+def calcProb(input):
+    probs = {}
+    for char in set(input):
+        count = input.count(char)
+        probs[char] = count / len(input)
+    return probs
 
 
 def buildHuffmanTree(nodes: list) ->Node:
