@@ -40,8 +40,8 @@ python main.py
 ```
 
 ### Menu Options
-1 => **Compress a File**: Provide the name of the text file (located in the `Playground` folder) to compress.
-2 => **Decompress a File**: Provide the name of the `.huff` file (located in the `Playground` folder) to decompress.
+1.  **Compress a File**: Provide the name of the text file (located in the `Playground` folder) to compress.
+2.  **Decompress a File**: Provide the name of the `.huff` file (located in the `Playground` folder) to decompress.
 
 ### Example
 #### Compress
